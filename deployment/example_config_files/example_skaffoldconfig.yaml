@@ -1,0 +1,21 @@
+# This is an example skaffold config file. It is not functional, just something to reference.
+# After installing skaffold, your version of this file can be found in ~/.skaffold/config
+
+# These skaffold configs are global
+global:
+  local-cluster: true # This is the default (or should be), this makes prevents skaffold from using docker to push images to a cloud repo.
+  survey:
+    last-prompted: "2021-12-14T11:48:13+08:00"
+  collect-metrics: true
+  update:
+    last-prompted: "2021-12-20T18:49:54+08:00"
+
+# These are skaffold configs are only applied to specified kubecontexts, and will override the global configs above.
+kubeContexts:
+- kube-context: cloud-droid-dev # Which kube context to apply these from
+  default-repo: registry-intl.cn-hongkong.aliyuncs.com/droid # This is the registry URL that can be obtained from the cloud provider.
+  local-cluster: false # This needs to be set to false for cloud clusters otherwise images will not be pushed, and therefore the cluster has nothing to pull
+- kube-context: cloud-droid-prod
+  default-repo: registry-intl.cn-hongkong.aliyuncs.com/nlp-production
+  local-cluster: false
+- kube-context: minikube # Do not override the local-cluster default for local deployments (You can, but dev cycle would be slow because you have to push and pull to and from cloud everytime)
