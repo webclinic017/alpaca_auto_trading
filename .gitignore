@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.idea
+.vscode
+.htaccess
+.env
+tmp/
+passenger_wsgi.py
+env/
+ta-lib/
+db.sqlite3
+*.csv
+*.zip
+.log
+Pipfile

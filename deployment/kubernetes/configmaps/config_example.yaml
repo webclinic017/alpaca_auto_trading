@@ -1,0 +1,31 @@
+# Config maps are used to store configs that may be shared by multiple microservices.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: example-configs
+data:
+  # The below key-value pairs can be changed to anything you want, do not change the code above.
+  example-1: Values are always stored as strings
+
+  example-2: |
+    Using the pipe character, multi-line strings can also be stored,
+    This allows for file-like configs to be stored, which can be mounted as files as shown in the below example
+
+  example-3: |
+    {
+      "This": "is",
+      "an": "example",
+      "of": "how",
+      "JSON": "can",
+      "be": "stored"
+    }
+
+  # Because I don't want to write code outside this deployment directory, I'll inject an example script as a config map
+  example-4: |
+    import time
+    count = 0
+    while True:
+      print(f"Hello world! ({count})", flush=True)
+      count += 1
+      time.sleep(1)
