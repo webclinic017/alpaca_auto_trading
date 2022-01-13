@@ -1,0 +1,113 @@
+# A basic microservice is made of one deployment, and one service.
+
+
+# Deployments are used to create and manage pods.
+# Other than deployment, there are other possible resource 'kinds' such as StatefulSets - it is unlikely you'll need these
+# I will make note of any fields that are optional, assume everything else as required
+# NOTE when deploying on cloud, change the imagePullPolicy below
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 1 # This is how many copies of the pod to create. Increasing this is the most simple method of scaling, autoscaling is also possible https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#proportional-scaling
+  selector:
+    matchLabels:
+      # These key-value pairs tell the deployment which pods it will create and manage
+      # Note that ALL key-value pairs must match the lebales set in the template; i.e. this is not at-least-one logic.
+      app: myapp
+      environment: dev
+      example: some-value
+  template: # Template defines the pod. https://kubernetes.io/docs/concepts/workloads/pods/#pod-templates
+    metadata:
+      labels:
+        # Key-value pairs are assigned to pods created by this deployment.
+        # These key-value pairs can be anything - I advise you decide on a convention and stick to it.
+        app: myapp
+        environment: dev
+        example: some-value
+    spec:
+      containers:
+      # Note that it is possible to have multiple containers in a single pod, but convention is there should be one main container per pod. Other pods are for small jobs such as log forwarding with Fluentd.
+      - name: myapp
+        # When using skaffold, the repository name will be appended automatically and therefore it must be omitted in your yaml.
+        # This improves readability, and means the repo-name does not need to be removed from the yaml when deploying in the cloud, which could result in human error.
+        image: example-image
+        imagePullPolicy: Never # When working on cloud, set this to Always. This requires pushing images to a cloud registry. Using "Always" works locally too, but redeploys will be slower.
+        
+        resources:
+          # When using serverless, resource limits are not treated as limits, but instead as allocation.
+          # Therefore, setting these properly is VERY important.
+          # If 4GB memory is set, and only 1GB is used at max load, we still pay for 4GB.
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        
+        ports:
+        - containerPort: 80 # This is the port for the container - it can be set to any value. This is used by the Service below to route requests to.
+        
+        env: # OPTIONAL. Environment variables can be declared here. I advise env vars to be defined in k8s rather than in the dockerFile for more flexible images.
+        # The keynames cannot be changed; name is the envvar name, and value is it's value.
+        - name: "ENVVARS_SHOULD_BE_IN_UPPER_CASE"
+          value: "This is the value of the environment variable."
+        - name: "SECOND_ENVVAR_EXAMPLE"
+          value: "This is another example of an env var."
+
+        envFrom: # OPTIONAL. This is how you can mount secrets as env vars. Useful for sensitive info such as credentials.
+        - secretRef:
+            name: example-secret # This refers the the Secret>metadata>name from a k8s secret .yaml file. All key-value pairs in the "data" part of that .yaml will be mounted as seperate env vars.
+
+        volumeMounts: # OPTIONAL. This is how configmaps or secrets can be mounted as files.
+        # Note that these volumes are local volumes inside the mount, and they will be destroy when the pod is destroyed. For persistent volumes, a persistent volume must be created.
+        - mountPath: "/configs/" # This path is relative to the $HOME directory, not the Dockerfile WORKDIR.
+          name: example-configs # Tells k8s which volume (defined below) to mount.
+          readOnly: true # Remove this line if you want the file to be writable.
+        - mountPath: "/example_code/" # Multiple mounts cannot be made to the same path.
+          name: example-code
+          readOnly: true
+        - mountPath: "/secrets/"
+          name: example-secrets
+          readOnly: true
+
+        args: ["example_code/example_code.py"] # This is the command for the container to run after being built from the image.
+      
+      volumes: # Only required if volumeMounts is used above
+        - name: example-configs # This can be set to anything; used by volumeMount above.
+          configMap:
+            name: example-configs # This refers to the ConfigMap>metadata>name defined in a k8s ConfigMap .yaml file.
+            items: # Select which key-value pairs in the k8s ConfigMap .yaml file to make available for mounting.
+              - key: example-2 # This refers to the ConfigMap>data>key-name defined in a k8s ConfigMap .yaml file.
+                path: example_config.csv # This path is appended to the path defined in mountPath above.
+              - key: example-3
+                path: example_config.json
+        - name: example-code # I'm injecting an exampel script using a config map, you should not do this.
+          configMap:
+            name: example-configs
+            items:
+              - key: example-4
+                path: example_code.py
+        - name: example-secrets
+          secret:
+            secretName: example-secrets # This refers to the Secret>metadata>name defined in a k8s Secret .yaml file.
+            items:
+              - key: encoded-file-example
+                path: example_secret.json
+        
+
+--- # Triple hyphen is used to seperate k8s resources
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp
+spec:
+  type: LoadBalancer # This will make the service use the cloud provider's preconfigured ingress so that we don't have to configure our own. This will work with minikube so no changed need to be made when deploying.
+  selector:
+    # These key-value pairs allow the Service to know which pods to route traffic to
+    # Note that ALL key-value pairs must match the labels set in the above template; i.e. this is not at-least-one logic.
+    app: myapp
+    environment: dev
+    example: some-value
+  ports:
+  - port: 8000 # This is the port for connections to the service. I advise you follow networking conventions; 8080 is apache default, 8000 is Python FastAPI default, etc.
+    targetPort: 80 # This targets the containerPort from above; traffic sent to this Service's port (8000 in this example) will be routed to here.

@@ -1,0 +1,19 @@
+# This file is generated when running "skaffold init" in the terminal.
+# A new init needs to be run when are new images and/or k8s resources are created, unless you manually modify this file instead.
+# There are two lines that need modifying per resource if a new init is run. These changes have already been made in this example.
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata:
+  name: django-boilerplate
+build:
+  artifacts:
+  - image: example-image
+    context: . # This is the build context for the dockerfile. Defaults to the location of the dockerfile, but needs to be in the root dir to use all the code.
+    docker:
+      dockerfile: deployment/container/example-image.Dockerfile # Location of the dockerfile. Uses the path relative to the context above; since we changed that, this path also needed to be changed.
+deploy:
+  kubectl:
+    manifests:
+    - deployment/kubernetes/configmaps/config_example.yaml
+    - deployment/kubernetes/microservices/microservice_example.yaml
+    - deployment/kubernetes/secrets/secrets_example.yaml
