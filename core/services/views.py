@@ -1,4 +1,6 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import  Group
+
 from django.http import HttpResponseRedirect
 from rest_framework import views, viewsets, permissions, authentication
 from rest_framework.response import Response
@@ -39,7 +41,7 @@ class UserViewSet(LoggedAPIView, viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    queryset = User.objects.all().order_by('-date_joined')
+    queryset = get_user_model().objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
 
     # Specify JWT authentication is the only authentication method allowed

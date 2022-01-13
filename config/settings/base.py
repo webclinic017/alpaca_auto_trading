@@ -2,13 +2,15 @@ import os
 from pathlib import Path
 from django.utils.translation import gettext_lazy as _
 from datetime import timedelta
-
+from dotenv import load_dotenv
+import dataset
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DB_ENGINE = 'django.db.backends.postgresql_psycopg2'
 
-
+DATASET = dataset.connect(f"postgresql://{os.getenv('DBNAME_U')}:{os.getenv('DBPASSWORD_U')}@{os.getenv('DBHOST_U')}:5432/{os.getenv('DBNAME_U')}")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -89,6 +91,8 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTHENTICATION_BACKENDS = ["config.Auth.AuthBackend"]
 
 
 # Internationalization
@@ -217,3 +221,7 @@ SWAGGER_SETTINGS = {
     'LOGIN_URL': '/login/',
     'LOGOUT_URL': '/logout/'
 }
+ROOT_URLCONF = "config.urls"
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static/staticfiles")
+AUTH_USER_MODEL = "user.User"

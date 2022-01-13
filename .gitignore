@@ -11,5 +11,5 @@ ta-lib/
 db.sqlite3
 *.csv
 *.zip
-.log
+*.log
 Pipfile
