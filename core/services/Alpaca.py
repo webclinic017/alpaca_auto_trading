@@ -4,6 +4,9 @@ from alpaca_trade_api.rest import REST
 from alpaca_trade_api.stream import Stream
 from django.db.models import Sum
 from asgiref.sync import sync_to_async
+import logging
+from django.core.management.color import color_style
+
 class Client:
     base_url ='https://paper-api.alpaca.markets'
     
@@ -41,6 +44,7 @@ class Client:
 
 class Listener:
     base_url ='https://paper-api.alpaca.markets'
+    color =color_style(True)
     
     
     def __init__(self,api_key,secret_key,bot_action=None):
@@ -54,24 +58,33 @@ class Listener:
         
     def save_model(self,model):
         model.save()
+        
     
     async def on_fill(self,data):
+        # called on event fill will update bot action and bot order value
+        
         action = await sync_to_async(self.get_action)(data.order.get('client_order_id'))
         action.status = data.order.get('status')
         await sync_to_async(self.save_model)(action)
+        logging.warning(f"Order {action.order_broker_id} is {data.order.get('status')} ..." + self.color.SUCCESS("OK"))
+
+        
     
     async def on_canceled(self,data):
+        # called on event canceled and update bot action
         action = await sync_to_async(self.get_action)(data.order.get('client_order_id'))
         action.status = data.order.get('status')
         await sync_to_async(self.save_model)(action)
+        logging.warning(f"Order {action.order_broker_id} is {data.order.get('status')} ..." + self.color.SUCCESS("OK"))
         
     async def handler(self,data):
+        # Handler must be coroutine
         if hasattr(self,f'on_{data.event}'):
             func = getattr(self,f'on_{data.event}')
             await func(data)
-        # print("Reply : ",data.order)
     
     def run(self):
+        # subcribe to listen order change from alpaca
         self.streamer.subscribe_trade_updates(self.handler)
         self.streamer.run()
         

@@ -8,7 +8,7 @@ from core.services.Alpaca import Listener
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        user = User.objects.get(username='ribonred')
+        user = User.objects.get(username='admin')
         services:Services = user.services.filter(name='alpaca').get()
         services.login()
         listener = Listener(services.credentials_json['api_key'],services.credentials_json['secret_key'],BotAction)
