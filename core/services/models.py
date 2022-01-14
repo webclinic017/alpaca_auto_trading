@@ -67,8 +67,14 @@ class BotOrder(TimestampWithUid):
     def get_bot_setup(self, price=None):
         if not price:
             self.services.login()
-            price_ = self.services.client.rest.get_latest_bar(self.get_symbol())
-            price = price_.c
+            prices =self.services.client.rest.get_last_quote(self.get_symbol())
+            
+            if not prices.askprice:
+                prices=self.services.client.rest.get_latest_bar(self.get_symbol())
+                price_ = prices.c
+            else:
+                price_ =prices.askprice
+            price = price_
         data = self.droid.create_bot(
             self.ric,
             self.created.date().strftime("%Y-%m-%d"),
@@ -92,12 +98,14 @@ class BotOrder(TimestampWithUid):
         self.services.login()
         setup = self.get_bot_setup(price)
         take_profit = {
-            'limit_price':self.target_profit_price
+            'limit_price':round(setup.get('target_profit_price'),2)
         }
         stop_loss = {
-             'limit_price':self.max_loss_price,
-             'stop_price':self.max_loss_price
+             'limit_price':round(setup.get('max_loss_price'),2),
+             'stop_price':round(setup.get('max_loss_price'),2)
         }
+        print(take_profit,stop_loss)
+        print("="*8)
         order = self.services.client.rest.submit_order(
             self.get_symbol(),
             setup.get('share_num'),
@@ -105,6 +113,7 @@ class BotOrder(TimestampWithUid):
             "limit",
             "day",
             limit_price=round(setup.get('entry_price'),2),
+            order_class="bracket",
             take_profit=take_profit,
             stop_loss=stop_loss
         )
@@ -141,15 +150,31 @@ class BotAction(TimestampWithUid):
         if not self.order_broker_id:
             return None
         self.from_bot.services.login()
-        return self.from_bot.services.client.rest.get_order(self.order_broker_id)
+        return self.from_bot.services.client.rest.get_order_by_client_order_id(self.order_broker_id)
 
-    
+    def share_change(self):
+        if self.action == 'buy':
+            return self.qty
+        elif self.action == 'sell':
+            return -self.qty
     def save(self, *args, **kwargs):
-        if self.status == "fill":
+        if self.status == "filled":
+            invest = round(self.qty * self.executed_price,2)
             bot_order:BotOrder = BotOrder.objects.get(pk=self.from_bot.pk)
-            bot_order.bot_balance = round(bot_order.bot_balance - self.invested,2)
+            if self.action == 'buy':
+                self.invested = invest
+                invest= -invest
+            elif self.action == 'sell':
+                invest = invest
+                self.invested = 0
+                bot_order.is_active = False
+            bot_order.bot_balance = round(bot_order.bot_balance + invest,2)
+            print("BEFORE",bot_order.bot_holding_share)
+            
+            bot_order.bot_holding_share = bot_order.bot_holding_share + self.share_change()
+            print(bot_order.bot_holding_share)
             bot_order.save()
-            super(BotOrder, self).save(*args, **kwargs)
+            super(BotAction, self).save(*args, **kwargs)
         else:
             super().save(*args, **kwargs)
         
