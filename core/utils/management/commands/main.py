@@ -3,7 +3,7 @@ from core.services.models import Services,BotOrder
 from core.user.models import User
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        user = User.objects.get(username='ribonred')
+        user = User.objects.get(username='admin')
         services:Services = user.services.filter(name='alpaca').get()
         services.login()
         
