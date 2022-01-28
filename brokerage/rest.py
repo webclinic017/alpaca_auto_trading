@@ -8,6 +8,8 @@ import os
 from .common import URL
 import sseclient
 from threading import Thread
+from . import vars
+
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +53,7 @@ class ConnectionBroker:
     _base_url = 'https://broker-api.sandbox.alpaca.markets'
     
     def __init__(self):
-        self._auth =('CKPCOLM4RRWSURYO75OI', 'Fa4lW5CJZX6Oq0qGGiuWB33aVVBWmAbARVuwV4pA')
+        self._auth =(vars.BROKER_KEY, vars.BROKER_SECRET)
         self._session = requests.Session()
         self._session.auth = self._auth
         self._retry = int(os.environ.get('APCA_RETRY_MAX', 3))
