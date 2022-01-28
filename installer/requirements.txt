@@ -15,7 +15,7 @@ Django==4.0
 djangorestframework==3.13.1
 djangorestframework-simplejwt==5.0.0
 drf-yasg==1.20.0
-DroidRpc==1.0.6
+DroidRpc==1.0.7
 greenlet==1.1.2
 grpcio==1.43.0
 grpcio-tools==1.43.0
