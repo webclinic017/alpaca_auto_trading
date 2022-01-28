@@ -225,3 +225,4 @@ ROOT_URLCONF = "config.urls"
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static/staticfiles")
 AUTH_USER_MODEL = "user.User"
+ASKLORA_DROID=os.getenv("ASKLORA_DROID")

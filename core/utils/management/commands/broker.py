@@ -14,7 +14,7 @@ class Command(BaseCommand):
 }
         create_data = {
             "contact": {
-    "email_address": "ribonred@gmail.com",
+    "email_address": "ribonred@nomail.com",
     "phone_number": "555-666-7788",
     "street_address": ["20 N San Mateo Dr"],
     "unit": "Apt 1A",
@@ -25,8 +25,8 @@ class Command(BaseCommand):
   },
   "identity": {
     "given_name": "Rede",
-    "middle_name": "akbar",
-    "family_name": "wijaya",
+    "middle_name": "zora",
+    "family_name": "widodo",
     "date_of_birth": "1988-08-12",
     "tax_id": "666-55-4321",
     "tax_id_type": "USA_SSN",
@@ -64,13 +64,13 @@ class Command(BaseCommand):
         }
         broker = Broker()
         # resp = broker.get_account(main_id)
-        resp = broker.get_trading_account('9485782d-40d7-3365-aaf5-f5f44d78e755')
+        # resp = broker.get_trading_account('9485782d-40d7-3365-aaf5-f5f44d78e755')
         
         # resp = broker.create_account(create_data)
         # resp = broker.get_transfer_data_all('5e20df35-bbd0-41ee-be48-d809673bf0a0')
         # resp = broker.delete_transfer_data_id('9485782d-40d7-3365-aaf5-f5f44d78e755','7ac5ee81-2bb5-4a4b-bdc1-aee92741c6ec')
-        # resp =broker.create_clearing_house_relationship(main_id,clearing_data)
-        # resp =  broker.deposit_account(main_id,"50000")
+        # resp =broker.create_clearing_house_relationship('ea3f8846-f242-41e2-b0c2-96471b6426e8',clearing_data)
+        resp =  broker.deposit_account('ea3f8846-f242-41e2-b0c2-96471b6426e8',"100")
         print(resp)
 
         

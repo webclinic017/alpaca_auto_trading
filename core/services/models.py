@@ -48,7 +48,7 @@ class BotOrder(TimestampWithUid):
     asset_type = models.CharField(max_length=255, null=True, blank=True)
     bot_holding_share = models.FloatField(default=0)
     
-    droid: Droid = Droid(address="47.243.56.42")
+    droid: Droid = Droid(address=settings.ASKLORA_DROID)
 
     def save(self, *args, **kwargs):
         if not self.bot_balance:

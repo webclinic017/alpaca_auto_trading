@@ -1,9 +1,13 @@
+import json
+import pprint
 import requests
 from requests.exceptions import HTTPError
 import logging
 import time
 import os
 from .common import URL
+import sseclient
+from threading import Thread
 
 logger = logging.getLogger(__name__)
 
@@ -43,19 +47,18 @@ class APIError(Exception):
     def response(self):
         if self._http_error is not None:
             return self._http_error.response
-
-
-class Broker:
+class ConnectionBroker:
     _base_url = 'https://broker-api.sandbox.alpaca.markets'
     
     def __init__(self):
+        self._auth =('CKPCOLM4RRWSURYO75OI', 'Fa4lW5CJZX6Oq0qGGiuWB33aVVBWmAbARVuwV4pA')
         self._session = requests.Session()
+        self._session.auth = self._auth
         self._retry = int(os.environ.get('APCA_RETRY_MAX', 3))
         self._retry_wait = int(os.environ.get('APCA_RETRY_WAIT', 3))
         self._retry_codes = [int(o) for o in os.environ.get(
             'APCA_RETRY_CODES', '429,504').split(',')]
-        
-        
+    
     def _request(self,
                  method,
                  path,
@@ -128,6 +131,10 @@ class Broker:
     def delete(self, path, data=None):
         return self._request('DELETE', path, data)
 
+class Broker(ConnectionBroker):        
+        
+    
+
     
     def create_account(self,data):
         resp = self.post('v1/accounts',data)
@@ -166,7 +173,11 @@ class Broker:
         resp = self.transfer_fund(to_account,clearing_id,'INCOMING',amount)
         return resp
     
-    def create_order_with_setup(self,account_id:str,symbol:str,qty:float,limit_price:float,take_profit:float=None,stop_loss:float=None):
+    def close_position(self,account_id:str,symbol:str):
+        resp = self.delete(f'v1/trading/accounts/{account_id}/positions/{symbol}')
+        return resp
+    
+    def create_order_with_setup(self,account_id:str,symbol:str,qty:float,limit_price:float,take_profit:float,stop_loss:float):
         data ={}
         data['symbol'] =symbol
         data['side']='buy'
@@ -180,6 +191,48 @@ class Broker:
         if stop_loss:
             data['order_class'] ='bracket'
             data['stop_loss'] ={'limit_price':stop_loss,'stop_price':stop_loss}
+        resp = self.submit_order(account_id,data)
+        return resp
+    
+    def buy_order_direct(self,account_id:str,symbol:str,qty:float):
+        data ={}
+        data['symbol'] =symbol
+        data['side']='buy'
+        data['qty'] =qty
+        data['type'] ='market'
+        data['time_in_force'] ='day'
+        resp = self.submit_order(account_id,data)
+        return resp
+    
+    def sell_order_direct(self,account_id:str,symbol:str,qty:float):
+        data ={}
+        data['symbol'] =symbol
+        data['side']='sell'
+        data['time_in_force'] ='day'
+        data['qty'] =qty
+        data['type'] ='market'
+        resp = self.submit_order(account_id,data)
+        return resp
+        
+    def buy_order_limit(self,account_id:str,symbol:str,qty:float,limit_price:float):
+        data ={}
+        data['symbol'] =symbol
+        data['side']='buy'
+        data['qty'] =qty
+        data['type'] ='limit'
+        data['time_in_force'] ='gtc'
+        data['limit_price'] =limit_price
+        resp = self.submit_order(account_id,data)
+        return resp
+    
+    def sell_order_limit(self,account_id:str,symbol:str,qty:float,limit_price:float):
+        data ={}
+        data['symbol'] =symbol
+        data['side']='sell'
+        data['qty'] =qty
+        data['type'] ='limit'
+        data['time_in_force'] ='gtc'
+        data['limit_price'] =limit_price
         resp = self.submit_order(account_id,data)
         return resp
         
@@ -199,3 +252,87 @@ class Broker:
         
         resp = self.post(f'v1/accounts/{account_id}/transfers',data)
         return resp
+    
+    
+class BrokerEvents(ConnectionBroker):
+    
+    
+    def _request(self,
+                 method,
+                 path,
+                 data=None,
+                 base_url=None,
+                 ):
+        base_url = base_url or self._base_url
+        url=(base_url + '/' + path)
+        headers = {'Accept': 'text/event-stream'}
+        opts = {
+            'stream': True,
+            'headers':headers,
+            "auth": self._auth
+        }
+        if method.upper() in ['GET', 'DELETE']:
+            opts['params'] = data
+        else:
+            opts['json'] = data
+
+        retry = self._retry
+        if retry < 0:
+            retry = 0
+        while retry >= 0:
+            try:
+                return self.stream_request( url, opts)
+            except RetryException:
+                retry_wait = self._retry_wait
+                logger.warning(
+                    'sleep {} seconds and retrying {} '
+                    '{} more time(s)...'.format(
+                        retry_wait, url, retry))
+                time.sleep(retry_wait)
+                retry -= 1
+                continue
+    
+    def stream_request(self,url, opts):
+        response = requests.get(url, **opts)
+        return response
+    
+    
+    def stream_account_events(self):
+        response = self.get('v1/events/accounts/status')
+        client = sseclient.SSEClient(response)
+        for event in client.events():
+            pprint.pprint(json.loads(event.data))
+    
+    def stream_journal_events(self):
+        response = self.get('v1/events/journals/status')
+        client = sseclient.SSEClient(response)
+        for event in client.events():
+            pprint.pprint(json.loads(event.data))
+    
+    def stream_trade_events(self):
+        response = self.get('v1/events/trades')
+        client = sseclient.SSEClient(response)
+        for event in client.events():
+            pprint.pprint(json.loads(event.data))
+            
+            
+    def stream_transfer_events(self):
+        response = self.get('v1/events/transfers/status')
+        client = sseclient.SSEClient(response)
+        for event in client.events():
+            pprint.pprint(json.loads(event.data))
+    
+    def stream_all_events(self):
+        # Start all threads. 
+        threads = [
+            Thread(target=self.stream_account_events, daemon=True),
+            Thread(target=self.stream_transfer_events, daemon=True),
+            Thread(target=self.stream_journal_events, daemon=True),
+            Thread(target=self.stream_trade_events, daemon=True),
+        ]
+        for event in threads:
+            event.start()
+
+        # Wait all threads to finish.
+        for event in threads:
+            event.join()
