@@ -133,9 +133,12 @@ class ConnectionBroker:
     def delete(self, path, data=None):
         return self._request('DELETE', path, data)
 
-class Broker(ConnectionBroker):        
-        
+class MarketData(ConnectionBroker):
+    _base_url ='https://data.sandbox.alpaca.markets'
     
+    def get_quote(self,symbol:str):
+        return self.get(f'v2/stocks/{symbol}/quotes/latest')
+class Broker(ConnectionBroker):        
 
     
     def create_account(self,data):
@@ -187,6 +190,7 @@ class Broker(ConnectionBroker):
         data['type'] ='limit'
         data['time_in_force'] ='gtc'
         data['limit_price'] =limit_price
+        data['commission']=0.85
         if take_profit:
             data['order_class'] ='bracket'
             data['take_profit'] ={'limit_price':take_profit}
