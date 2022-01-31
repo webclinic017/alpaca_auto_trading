@@ -133,6 +133,10 @@ class ConnectionBroker:
     def delete(self, path, data=None):
         return self._request('DELETE', path, data)
 
+    def is_open(self):
+        resp =self.get('v1/clock')
+        return resp['is_open']
+
 class MarketData(ConnectionBroker):
     _base_url ='https://data.sandbox.alpaca.markets'
     
@@ -168,15 +172,26 @@ class Broker(ConnectionBroker):
         resp = self.post(f'v1/accounts/{account_id}/ach_relationships',data)
         return resp
     
-    def get_related_clearing_house(self,account_id:str):
-        resp = self.get(f'v1/accounts/{account_id}/ach_relationships')
-        return resp
+    def get_related_clearing_house(self,account_id):
+        return self.get(f'v1/accounts/{account_id}/ach_relationships')
+    
     
     def deposit_account(self,to_account:str,amount:str):
         clearing=self.get_related_clearing_house(to_account)
         clearing_id = clearing[0].get('id')
         resp = self.transfer_fund(to_account,clearing_id,'INCOMING',amount)
         return resp
+    
+    def transfer(self,from_account,to_account,amount):
+        data = {
+            "from_account": from_account,
+            "entry_type": "JNLC",
+            "to_account": to_account,
+            "amount": amount,
+            "description": "test text /fixtures/status=rejected/fixtures/"
+        }
+        
+        return self.post(f'v1/journals',data)
     
     def close_position(self,account_id:str,symbol:str):
         resp = self.delete(f'v1/trading/accounts/{account_id}/positions/{symbol}')

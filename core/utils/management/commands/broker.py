@@ -2,8 +2,8 @@ from django.core.management.base import BaseCommand
 from brokerage.rest import Broker,MarketData
 
 from datetime import datetime
-main_id = 'a234caae-b645-4486-876f-306c709e4b4c'
-firm_id ='9485782d-40d7-3365-aaf5-f5f44d78e755'
+main_id = '2e5b32c8-2282-436c-ab25-a950903666d0'
+firm_id ='a64482a3-7647-3ccc-bd9e-e77f500f78e8'
 class Command(BaseCommand):
     def handle(self, *args, **options):
         clearing_data = {
@@ -15,7 +15,7 @@ class Command(BaseCommand):
 }
         create_data = {
             "contact": {
-    "email_address": "ribonred@nomail.com",
+    "email_address": "ribonred@hotmail.com",
     "phone_number": "555-666-7788",
     "street_address": ["20 N San Mateo Dr"],
     "unit": "Apt 1A",
@@ -66,14 +66,17 @@ class Command(BaseCommand):
         broker = Broker()
         exchange =MarketData()
         # print(exchange.get_quote("AAPL"))
-        # resp = broker.get_account(firm_id)
-        resp = broker.get_trading_account(firm_id)
+        # resp = broker.get_account(main_id)
+        # resp = broker.get_trading_account(firm_id)
         
         # resp = broker.create_account(create_data)
         # resp = broker.get_transfer_data_all('5e20df35-bbd0-41ee-be48-d809673bf0a0')
         # resp = broker.delete_transfer_data_id('9485782d-40d7-3365-aaf5-f5f44d78e755','7ac5ee81-2bb5-4a4b-bdc1-aee92741c6ec')
-        # resp =broker.create_clearing_house_relationship('ea3f8846-f242-41e2-b0c2-96471b6426e8',clearing_data)
-        # resp =  broker.deposit_account('ea3f8846-f242-41e2-b0c2-96471b6426e8',"100")
+        # resp =broker.create_clearing_house_relationship(main_id,clearing_data)
+        # resp =broker.get_related_clearing_house(main_id)
+        # resp =  broker.deposit_account(firm_id,"10000")
+        resp =  broker.is_open()
+        # resp =  broker.transfer(firm_id,"10000")
         # resp =  broker.create_order_with_setup('5e20df35-bbd0-41ee-be48-d809673bf0a0',"AAPL",5,172.2,175.75,159)
         print(resp)
 

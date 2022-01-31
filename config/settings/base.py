@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_yasg',
+    'channels',
+    'django_eventstream',
+    'drf_spectacular'
 ]
 
 MIDDLEWARE = [
