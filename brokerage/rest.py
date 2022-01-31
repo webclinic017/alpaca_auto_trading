@@ -179,7 +179,7 @@ class Broker(ConnectionBroker):
     def deposit_account(self,to_account:str,amount:str):
         clearing=self.get_related_clearing_house(to_account)
         clearing_id = clearing[0].get('id')
-        resp = self.transfer_fund(to_account,clearing_id,'INCOMING',amount)
+        resp = self.funding(to_account,clearing_id,'INCOMING',amount)
         return resp
     
     def transfer(self,from_account,to_account,amount):
@@ -192,6 +192,12 @@ class Broker(ConnectionBroker):
         }
         
         return self.post(f'v1/journals',data)
+    
+    def get_transfer_data(self):
+        return self.get(f'v1/journals')
+    
+    def retrive_transfer_data(self,transfer_id):
+        return self.get(f'v1/journals/{transfer_id}')
     
     def close_position(self,account_id:str,symbol:str):
         resp = self.delete(f'v1/trading/accounts/{account_id}/positions/{symbol}')
@@ -222,6 +228,8 @@ class Broker(ConnectionBroker):
         data['qty'] =qty
         data['type'] ='market'
         data['time_in_force'] ='day'
+        data['commission']=0.85
+        
         resp = self.submit_order(account_id,data)
         return resp
     
@@ -264,7 +272,7 @@ class Broker(ConnectionBroker):
         return resp
     
     
-    def transfer_fund(self,account_id:str,ach_id:str,direction:str,amount:str):
+    def funding(self,account_id:str,ach_id:str,direction:str,amount:str):
         data={}
         data['transfer_type'] = 'ach'
         data['relationship_id'] = ach_id

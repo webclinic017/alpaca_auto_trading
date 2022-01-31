@@ -75,8 +75,12 @@ class Command(BaseCommand):
         # resp =broker.create_clearing_house_relationship(main_id,clearing_data)
         # resp =broker.get_related_clearing_house(main_id)
         # resp =  broker.deposit_account(firm_id,"10000")
-        resp =  broker.is_open()
-        # resp =  broker.transfer(firm_id,"10000")
+        # resp =  broker.is_open()
+        # resp =  broker.transfer(firm_id,main_id,"250")
+        # resp =  broker.buy_order_direct(main_id,'AAL',"250")
+        # resp =  broker.sell_order_direct(main_id,'AAL',300)
+        resp =  broker.retrive_transfer_data('51fcf60f-fc3f-4b10-8e25-08104d118be1')
+        
         # resp =  broker.create_order_with_setup('5e20df35-bbd0-41ee-be48-d809673bf0a0',"AAPL",5,172.2,175.75,159)
         print(resp)
 
