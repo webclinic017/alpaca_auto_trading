@@ -48,3 +48,22 @@ class TimestampWithUid(BaseTimeStampModel):
                     success = True
         else:
             super().save(*args, **kwargs)
+            
+            
+class Universe(models.Model):
+    """
+    A group of tickers with their details
+    """
+    ticker = models.CharField(max_length=255, primary_key=True)
+    currency_code = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+    ticker_name = models.TextField(blank=True, null=True)
+    ticker_fullname = models.TextField(blank=True, null=True)
+    ticker_symbol  = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.ticker
+
+    class Meta:
+        managed = False
+        db_table = "universe"

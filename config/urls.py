@@ -14,28 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.shortcuts import render
 from django.urls import path, include
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-    TokenVerifyView
-)
-from core.user.views import (
-    login_view,
-    login_authenticate_view,
-    logout_view
-)
-
+def index(request):
+    return render(request, 'api_home.html')
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # API endpoints for token retrieval, refresh, verification
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    # Sample API endpoints
-    path('api/', include('core.services.urls')),
-    # API documentation auth
-    path('login/', login_view),
-    path('login/auth/', login_authenticate_view),
-    path('logout/', logout_view),
+    path('', index),
+    # API endpoints
+    path('api/v1/', include('api.v1.urls')),
 ]

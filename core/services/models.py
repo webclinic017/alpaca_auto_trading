@@ -1,5 +1,4 @@
-from turtle import st
-from core.utils.models import TimestampWithUid
+from core.utils.models import TimestampWithUid, Universe
 from core.utils.modelhelper import updatesetter
 from core.user.models import User
 from django.db import models
@@ -7,6 +6,8 @@ from .Alpaca import Client as AlpacaClient
 from DroidRpc.client import Client as Droid
 from django.conf import settings
 from django.utils import timezone
+
+
 class Services(TimestampWithUid):
     name = models.CharField(max_length=255)
     credentials_json = models.JSONField(default=dict)
@@ -61,8 +62,8 @@ class BotOrder(TimestampWithUid):
         return f"{self.bot_id} - {self.services.uid}"
 
     def get_symbol(self):
-        universe = settings.DATASET["universe"]
-        return universe.find_one(ticker=self.ric).get("ticker_symbol")
+        universe:Universe = Universe.objects.get(ticker=self.ric)
+        return universe.ticker_symbol
 
     def get_bot_setup(self, price=None):
         if not price:

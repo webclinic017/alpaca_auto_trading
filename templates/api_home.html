@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section-1-container section-container">
+    <div class="container">
+        <div class="row">
+            <div class="col-10 offset-1 col-lg-8 offset-lg-2 div-wrapper d-flex justify-content-center align-items-center">
+                
+                <div class="div-to-align">
+                    <p><a href="{% url 'redocv1' %}">API V1 Here</a> </p>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    #main {
+        height:100%;
+        position: relative;
+      }
+    
+    p {
+        margin: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2rem;
+      }
+</style>
+{% endblock  %}

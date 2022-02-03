@@ -23,6 +23,9 @@ STATICFILES_DIRS = [
 ]
 
 
+
+
+
 DATABASES = {
     'default': {
         'ENGINE': DB_ENGINE,
@@ -32,6 +35,15 @@ DATABASES = {
         'HOST': os.getenv('DBHOST'),
         'PORT': os.getenv('DBPORT'),
     },
+    'droid': {
+        'ENGINE': DB_ENGINE,
+        'NAME': os.getenv('DBNAME_U'),  # dbname
+        'USER': os.getenv('DBNAME_U'),
+        'PASSWORD': os.getenv('DBPASSWORD_U'),
+        'HOST': os.getenv('DBHOST_U'),
+        'PORT': os.getenv('DBPORT'),
+    },
     
 
 }
+DATABASE_ROUTERS = ['config.DbRouter.DroidRouters']
