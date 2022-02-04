@@ -20,9 +20,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
+    trade_status = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
     USERNAME_FIELD = "username"
     AUTH_FIELD_NAME = "email"
     REQUIRED_FIELDS = ["email"]
 
     objects = AppUserManager()
+
+
+
+    
+
+
+    

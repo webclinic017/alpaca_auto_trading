@@ -188,7 +188,7 @@ class Broker(ConnectionBroker):
             "entry_type": "JNLC",
             "to_account": to_account,
             "amount": amount,
-            "description": "test text /fixtures/status=rejected/fixtures/"
+            # "description": "test text /fixtures/status=rejected/fixtures/"
         }
         
         return self.post(f'v1/journals',data)

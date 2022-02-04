@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from brokerage.rest import Broker,MarketData
+from core.utils.model_enum import Agreement
 
 from datetime import datetime
 main_id = '2e5b32c8-2282-436c-ab25-a950903666d0'
@@ -76,13 +77,13 @@ class Command(BaseCommand):
         # resp =broker.get_related_clearing_house(main_id)
         # resp =  broker.deposit_account(firm_id,"10000")
         # resp =  broker.is_open()
-        # resp =  broker.transfer(firm_id,main_id,"250")
+        # resp =  broker.transfer(main_id,firm_id,125)
         # resp =  broker.buy_order_direct(main_id,'AAL',"250")
         # resp =  broker.sell_order_direct(main_id,'AAL',300)
-        resp =  broker.retrive_transfer_data('51fcf60f-fc3f-4b10-8e25-08104d118be1')
+        # resp =  broker.retrive_transfer_data('51fcf60f-fc3f-4b10-8e25-08104d118be1')
         
         # resp =  broker.create_order_with_setup('5e20df35-bbd0-41ee-be48-d809673bf0a0',"AAPL",5,172.2,175.75,159)
-        print(resp)
+        print(Agreement.to_dict())
 
         
         # 2020-09-11T18:09:33Z

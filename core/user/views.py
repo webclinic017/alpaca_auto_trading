@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
 
 from core.user.models import User
-from core.utils import api_utils
+from core.utils import api_utils,model_enum
 from .serializers import (
     PairTokenSerializer,
     TokenRevokeSerializer,
@@ -34,7 +34,7 @@ class PairTokenView(TokenObtainPairView):
         operation_id="Create Token",
     )
     def post(self, request):
-        super(PairTokenView, self).post(request)
+        return super(PairTokenView, self).post(request)
 
 
 class RevokeToken(APIView):
@@ -97,31 +97,32 @@ class AccountRegisterViewV1(APIView):
                 ),
                 OpenApiExample(
                     "Example success response",
-                    value={"detail": api_utils.RegiesterRepsonse.ACCOUNT_CREATED.value},
+                    value={"detail": model_enum.RegiesterRepsonse.ACCOUNT_CREATED.value},
                     response_only=True,
                     status_codes=[201],
                 ),
                 OpenApiExample(
                     "Example  email not valid",
-                    value={"detail":api_utils.RegiesterRepsonse.EMAIL_NOT_VALID.value},
+                    value={"detail":model_enum.RegiesterRepsonse.EMAIL_NOT_VALID.value},
                     response_only=True,
                     status_codes=[400],
                 ),
                 OpenApiExample(
                     "Example Account Registration with error syntax email",
-                    value={"detail": api_utils.RegiesterRepsonse.ACCOUNT_EXIST.value},
+                    value={"detail": model_enum.RegiesterRepsonse.ACCOUNT_EXIST.value},
                     response_only=True,
                     status_codes=[409],
                 ),
             ],
         operation_id="Create Account",
+        description=open("api/v1/docs/accounts/create_account.md", "r").read(),
     )
     def post(self, request):
         serializer = AccountsRegisterV1Serilaizer(User, data=request.data)
         if serializer.is_valid(raise_exception=False):
             serializer.save()
             response = api_utils.DefaultMessageSerializer(
-                data={"detail": api_utils.RegiesterRepsonse.ACCOUNT_CREATED.value}
+                data={"detail": model_enum.RegiesterRepsonse.ACCOUNT_CREATED.value}
             )
             return response.Response(
                 response.data, status=status.HTTP_201_CREATED

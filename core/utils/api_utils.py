@@ -1,6 +1,12 @@
 from rest_framework import serializers,permissions,status
-from enum import Enum
 from rest_framework.exceptions import APIException
+
+from core.utils.model_enum import AuthorizationEnum
+
+
+class DefaultUserSerializers(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
 
 
 class IsPostOrIsAuthenticated(permissions.BasePermission):
@@ -14,20 +20,7 @@ class IsPostOrIsAuthenticated(permissions.BasePermission):
         return request.user and request.user.is_authenticated
 
 
-class RegiesterRepsonse(Enum):
-    ACCOUNT_EXIST = "Account with this email already exists"
-    ACCOUNT_CREATED = "Account created successfully"
-    EMAIL_NOT_VALID = "email is not a valid email address"
-    PASSWORD_TO_COMMON = "Password is to common"
-    PASSWORD_SIMILIAR = "Password is similiar to username/email"
 
-class AuthorizationEnum(Enum):
-    PERMISSIONS_ERROR ='User is not Registered or has permission'
-
-
-class ApiErrorMessage(Enum):
-    ERROR_429 = "Too many request"
-    ERROR_400 = "Bad request / invaid payload"
 
 
 class DefaultMessageSerializer(serializers.Serializer):
