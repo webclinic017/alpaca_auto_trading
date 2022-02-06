@@ -12,7 +12,7 @@ from rest_framework_simplejwt.serializers import (
     update_last_login,
 )
 from .models import User
-
+from django.db import IntegrityError
 
 @extend_schema_serializer(
     examples=[
@@ -91,9 +91,13 @@ class AccountsRegisterV1Serilaizer(serializers.ModelSerializer):
     def create(self, validated_data):
         try:
             user = User.objects.create_user(**validated_data)
-        except Exception:
+        except IntegrityError as e:
             raise serializers.ValidationError(
-                {"email": "User with this email already exists"}
+                {"email": "User with this email already"}
+            )
+        except Exception as e:
+            raise serializers.ValidationError(
+                {"email": str(e)}
             )
         return user
 

@@ -55,7 +55,7 @@ class AccountPaymentsViewV1(APIView):
         except ObjectDoesNotExist:
             return response.Response({'detail':'user doesnt have payment account'},status=status.HTTP_404_NOT_FOUND)
     @extend_schema(
-        operation_id="get Payment Account details",
+        operation_id="Update Payment Account details",
     )
     def put(self,request):
         try:

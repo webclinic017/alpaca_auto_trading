@@ -118,15 +118,16 @@ class AccountRegisterViewV1(APIView):
         description=open("api/v1/docs/accounts/create_account.md", "r").read(),
     )
     def post(self, request):
-        serializer = AccountsRegisterV1Serilaizer(User, data=request.data)
+        serializer = AccountsRegisterV1Serilaizer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             response_data = api_utils.DefaultMessageSerializer(
                 data={"detail": model_enum.RegiesterRepsonse.ACCOUNT_CREATED.value}
             )
-            return response.Response(
-                response_data.data, status=status.HTTP_201_CREATED
-            )
+            if response_data.is_valid():
+                return response.Response(
+                    response_data.data, status=status.HTTP_201_CREATED
+                )
         return response.Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
     @extend_schema(
         "Account Details",
