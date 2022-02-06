@@ -63,7 +63,7 @@ class Disclosures(BaseTimeStampModel):
         return self.user.email
 
 class Agreements(BaseTimeStampModel):
-    agrement_type = models.CharField(
+    agreement = models.CharField(
         max_length=50, choices=model_enum.Agreement.choices
     )
     signed_at = models.DateTimeField(auto_now_add=True)
@@ -77,7 +77,7 @@ class Agreements(BaseTimeStampModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["user", "agrement_type"], name="unique_agreement_user"
+                fields=["user", "agreement"], name="unique_agreement_user"
             )
         ]
 
@@ -142,6 +142,7 @@ class BankAccounts(TimestampWithUid):
     account_number=models.CharField(max_length=255)
     bank_code=models.CharField(max_length=255)
     bank_code_type=models.CharField(max_length=255)
+    is_active=models.BooleanField(default=True)
     
     def __str__(self):
         return self.user.email

@@ -119,14 +119,15 @@ class AccountRegisterViewV1(APIView):
     )
     def post(self, request):
         serializer = AccountsRegisterV1Serilaizer(User, data=request.data)
-        if serializer.is_valid(raise_exception=False):
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
-            response = api_utils.DefaultMessageSerializer(
+            response_data = api_utils.DefaultMessageSerializer(
                 data={"detail": model_enum.RegiesterRepsonse.ACCOUNT_CREATED.value}
             )
             return response.Response(
-                response.data, status=status.HTTP_201_CREATED
+                response_data.data, status=status.HTTP_201_CREATED
             )
+        return response.Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
     @extend_schema(
         "Account Details",
         responses={

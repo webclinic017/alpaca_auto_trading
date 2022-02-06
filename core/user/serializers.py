@@ -89,7 +89,12 @@ class AccountsRegisterV1Serilaizer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
+        try:
+            user = User.objects.create_user(**validated_data)
+        except Exception:
+            raise serializers.ValidationError(
+                {"email": "User with this email already exists"}
+            )
         return user
 
 class AccountDetailsV1Serilaizer(serializers.ModelSerializer):

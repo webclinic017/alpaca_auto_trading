@@ -1,0 +1,44 @@
+{
+    "contact": {
+        "email_address": "ribonred@hotmail.com",
+        "phone_number": "555-666-7788",
+        "street_address": "20 N San Mateo Dr",
+        "unit": "Apt 1A",
+        "city": "San Mateo",
+        "state": "CA",
+        "postal_code": "94401",
+        "country": "USA"
+    },
+    "identity": {
+        "given_name": "Rede",
+        "middle_name": "zora",
+        "family_name": "widodo",
+        "date_of_birth": "1988-08-12",
+        "tax_id": "666-55-4321",
+        "tax_id_type": "USA_SSN",
+        "country_of_citizenship": "USA",
+        "country_of_birth": "USA",
+        "country_of_tax_residence": "USA",
+        "funding_source": "employment_income"
+    },
+    "disclosures": {
+        "is_control_person": false,
+        "is_affiliated_exchange_or_finra": false,
+        "is_politically_exposed": false,
+        "immediate_family_exposed": false,
+        "employment_status": "unemployed"
+    },
+    "agreements": [{
+            "agreement": "MA",
+            "ip_address": "185.13.21.99"
+        },
+        {
+            "agreement": "AA",
+            "ip_address": "185.13.21.99"
+        },
+        {
+            "agreement": "CA",
+            "ip_address": "185.13.21.99"
+        }
+    ]
+}
