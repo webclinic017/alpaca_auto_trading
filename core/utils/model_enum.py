@@ -135,6 +135,10 @@ class RegiesterRepsonse(ExtendedEnum):
     PASSWORD_TO_COMMON = "Password is to common"
     PASSWORD_SIMILIAR = "Password is similiar to username/email"
 
+class BankType(ExtendedEnum):
+    ABA="Domestic"
+    BIC= "International"
+
 class AuthorizationEnum(ExtendedEnum):
     PERMISSIONS_ERROR ='User is not Registered or has permission'
 

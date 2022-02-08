@@ -1,11 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework import response, status, permissions
+
+from core.accounts.broker_accounts import AccountBrokerServices
 from .serializers import (
     AccountCredentialsWrapperSerializerv1,
     BankAccountsSerializersV1
-    # AccountContactSerializersv1,
-    # AccountDetailsSerializersv1,
-    # AccountDisclosureSerializersv1,
 )
 from drf_spectacular.utils import extend_schema
 from django.core.exceptions import ObjectDoesNotExist
@@ -67,3 +66,14 @@ class AccountPaymentsViewV1(APIView):
         except ObjectDoesNotExist:
             return response.Response({'detail':'user doesnt have payment account'},status=status.HTTP_404_NOT_FOUND)
         
+
+class TradingAccountsViewV1(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def get(self, request):
+        accounts = AccountBrokerServices(request.user)
+        try:
+            accounts.set_submit_payload()
+        except ValueError as e:
+            return response.Response({'detail':str(e)},status=status.HTTP_400_BAD_REQUEST)
+        return response.Response({'detail':'accounts'}, status=status.HTTP_200_OK)

@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .manager import AppUserManager
 import uuid
 import base64
+from django.core.exceptions import ObjectDoesNotExist
+
 
 def generate_balance_id():
     r_id = base64.b64encode(uuid.uuid4().bytes).replace("=", "").decode()
@@ -27,6 +29,52 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ["email"]
 
     objects = AppUserManager()
+    
+    @property
+    def trade_requirements_status(self):
+        try:
+            self.user_detail_info
+            identity=True
+        except ObjectDoesNotExist:
+            identity=False
+            
+        try:
+            self.user_contact_info
+            contact=True
+        except ObjectDoesNotExist:
+            contact=False
+        
+        try:
+            self.user_disclosures_info
+            disclosures=True
+        except ObjectDoesNotExist:
+            disclosures=False
+        
+        try:
+            self.user_agreements_info
+            agreement=True
+        except ObjectDoesNotExist:
+            agreement=False
+        
+        try:
+            self.user_bank_account
+            payment=True
+        except ObjectDoesNotExist:
+            payment=False
+            
+        
+        
+        
+        
+        requirements:dict =dict(
+            identity=identity,
+            contact=contact,
+            disclosures=disclosures,
+            agreement=agreement,
+            payment=payment
+        )
+        return requirements
+        
 
 
 

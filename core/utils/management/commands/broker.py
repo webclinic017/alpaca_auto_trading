@@ -83,7 +83,7 @@ class Command(BaseCommand):
         # resp =  broker.retrive_transfer_data('51fcf60f-fc3f-4b10-8e25-08104d118be1')
         
         # resp =  broker.create_order_with_setup('5e20df35-bbd0-41ee-be48-d809673bf0a0',"AAPL",5,172.2,175.75,159)
-        print(Agreement.to_dict())
+        print(create_data)
 
         
         # 2020-09-11T18:09:33Z

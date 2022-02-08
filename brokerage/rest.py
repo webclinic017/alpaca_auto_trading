@@ -147,6 +147,7 @@ class Broker(ConnectionBroker):
     
     def create_account(self,data):
         resp = self.post('v1/accounts',data)
+        logger.info('account created',resp)
         return resp
     
     

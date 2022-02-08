@@ -13,7 +13,7 @@ from .serializers import (
 
 from .serializers import (
     AccountsRegisterV1Serilaizer,
-    AccountDetailsV1Serilaizer
+    UserDetailsV1Serilaizer
 )
 
 
@@ -133,7 +133,7 @@ class AccountRegisterViewV1(APIView):
         "Account Details",
         responses={
             200: OpenApiResponse(
-                description="Account created successfully",response=AccountDetailsV1Serilaizer,
+                description="Account created successfully",response=UserDetailsV1Serilaizer,
             ),
             401: OpenApiResponse(
                 description="permission denied", response=api_utils.DefaultMessageSerializer
@@ -144,7 +144,7 @@ class AccountRegisterViewV1(APIView):
         }
     )
     def get(self, request):
-        serializer = AccountDetailsV1Serilaizer(request.user)
+        serializer = UserDetailsV1Serilaizer(request.user)
         return response.Response(
                 serializer.data, status=status.HTTP_200_OK
             )

@@ -3,6 +3,8 @@ from drf_spectacular.utils import (
     OpenApiExample,
     extend_schema_serializer,
 )
+from django.core.exceptions import ObjectDoesNotExist
+
 from rest_framework import serializers, exceptions
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import (
@@ -77,6 +79,7 @@ class TokenRevokeSerializer(serializers.Serializer):
     token = serializers.CharField(required=True)
     
     
+@extend_schema_serializer(component_name="Accounts Register")
 
 class AccountsRegisterV1Serilaizer(serializers.ModelSerializer):
     
@@ -90,7 +93,7 @@ class AccountsRegisterV1Serilaizer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
-            user = User.objects.create_user(**validated_data)
+            user = User.objects.create_user(**validated_data,is_active=True)
         except IntegrityError as e:
             raise serializers.ValidationError(
                 {"email": "User with this email already"}
@@ -100,9 +103,24 @@ class AccountsRegisterV1Serilaizer(serializers.ModelSerializer):
                 {"email": str(e)}
             )
         return user
+@extend_schema_serializer(component_name="Trade Requirements")
 
-class AccountDetailsV1Serilaizer(serializers.ModelSerializer):
+class TradeRequirementsSerializers(serializers.Serializer):
+    identity = serializers.BooleanField(read_only=True)
+    contact = serializers.BooleanField(read_only=True)
+    disclosures = serializers.BooleanField(read_only=True)
+    agreement= serializers.BooleanField(read_only=True)
+    payment= serializers.BooleanField(read_only=True)
+
+@extend_schema_serializer(component_name="Accounts details")
+
+class UserDetailsV1Serilaizer(serializers.ModelSerializer):
+    trade_requirements_status = TradeRequirementsSerializers()
     
     class Meta:
         model = User
-        fields = ("email", "id",)
+        fields = ("email", "trade_requirements_status","trade_status")
+        extra_kwargs = {
+            'trade_status': {'read_only': True},
+            'trade_requirements_status': {'read_only': True}
+        }

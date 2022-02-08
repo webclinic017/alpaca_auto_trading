@@ -1,4 +1,5 @@
 from rest_framework import serializers, exceptions
+from core.accounts.broker_accounts import AccountBrokerServices
 
 from core.utils.modelhelper import updatesetter
 from . import models
@@ -102,7 +103,6 @@ class AccountDocumentSerializersv1(DefaultUserSerializers):
     ],
 )
 class AccountCredentialsWrapperSerializerv1(serializers.Serializer):
-    # user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     contact = AccountContactSerializersv1()
     identity = AccountDetailsSerializersv1()
     disclosures = AccountDisclosureSerializersv1()
@@ -113,6 +113,7 @@ class AccountCredentialsWrapperSerializerv1(serializers.Serializer):
         identity_data = validated_data.pop("identity")
         disclosures_data = validated_data.pop("disclosures")
         agreements_data = validated_data.pop("agreements")
+     
         transaction.set_autocommit(False)
         try:
             contact = models.ContactInfo.objects.create(**contact_data)
@@ -147,6 +148,12 @@ class AccountCredentialsWrapperSerializerv1(serializers.Serializer):
                 )
             except Exception as e:
                 raise exceptions.APIException(detail=str(e))
+        
+        try:
+            brokerage = AccountBrokerServices(contact_data['user'])
+            brokerage.activate_account()
+        except Exception as e:
+            raise exceptions.ParseError(detail=e)
 
         transaction.commit()
 
@@ -159,15 +166,21 @@ class AccountCredentialsWrapperSerializerv1(serializers.Serializer):
             ).data,
         }
         
-@extend_schema_serializer("Accounts Payments")
+@extend_schema_serializer(component_name="Accounts Payments")
 class BankAccountsSerializersV1(DefaultUserSerializers):
     class Meta:
         model = models.BankAccounts
-        fields ='__all__'
+        exclude =('created', 'updated')
         extra_kwargs = {
             'is_active':{
                 'read_only': True,
-            }
+            },
+            'uid':{
+                'read_only':True
+            },
+            'status':{
+                'read_only':True
+            },
         }
         
     
@@ -182,5 +195,12 @@ class BankAccountsSerializersV1(DefaultUserSerializers):
         bank = updatesetter(instance,validated_data)
         bank.save()
         return bank
+    
+
+
+class TradingAccountsSerializerV1(DefaultUserSerializers):
+    class Meta:
+        model =models.TradingAccounts
+        fields ='__all__'
         
         
