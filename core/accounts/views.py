@@ -1,10 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework import response, status, permissions
+from brokerage.rest import APIError
 
 from core.accounts.broker_accounts import AccountBrokerServices
 from .serializers import (
     AccountCredentialsWrapperSerializerv1,
-    BankAccountsSerializersV1
+    BankAccountsSerializersV1,
+    TradingAccountsSerializerV1
 )
 from drf_spectacular.utils import extend_schema
 from django.core.exceptions import ObjectDoesNotExist
@@ -73,7 +75,7 @@ class TradingAccountsViewV1(APIView):
     def get(self, request):
         accounts = AccountBrokerServices(request.user)
         try:
-            accounts.set_submit_payload()
-        except ValueError as e:
+            trade_account = accounts.get_trading_accounts()
+            return response.Response(TradingAccountsSerializerV1(trade_account).data, status=status.HTTP_200_OK)
+        except APIError as e:
             return response.Response({'detail':str(e)},status=status.HTTP_400_BAD_REQUEST)
-        return response.Response({'detail':'accounts'}, status=status.HTTP_200_OK)

@@ -14,7 +14,7 @@ class AccountBrokerServices:
 
     def check_user_credentials(self):
         for creds in self.user.trade_requirements_status:
-            if not self.user.trade_requirements_status[creds] and not creds == 'bank':
+            if not self.user.trade_requirements_status[creds] and not creds == 'payment':
                 raise ValueError(f"please complete your {creds} credentials")
 
     def set_submit_payload(self):
@@ -24,7 +24,7 @@ class AccountBrokerServices:
         agreement = [
             {
                 "agreement": agreement.get_agreement_display(),
-                "signed_at": agreement.signed_at.replace(microsecond=0).isoformat() + "Z",
+                "signed_at": utcisoformat(agreement.signed_at),
                 "ip_address": agreement.ip_address,
                 "revision": "16.2021.05"
             }
@@ -36,17 +36,17 @@ class AccountBrokerServices:
             disclosures=disclosures,
             agreements=agreement
         )
-        print(payload)
         return payload
 
     def activate_account(self):
         payload = self.set_submit_payload()
         response =  self.brokerage.create_account(payload)
-        response = response['account']
-        TradingAccounts.objects.create(
+        trade_account = TradingAccounts.objects.create(
+            user=self.user,
             trading_account_id=response['id'],
             current_status=response['status']
         )
+        return trade_account
 
     def get_trading_accounts(self):
         self.check_user_credentials()
@@ -54,4 +54,4 @@ class AccountBrokerServices:
             trade_account = self.user.user_trading_account
             return trade_account
         except ObjectDoesNotExist:
-            self.activate_account()
+            return self.activate_account()

@@ -16,4 +16,4 @@ def utcisoformat(dt):
     jquery.localtime plugin.
     """
     # Convert datetime to UTC, remove microseconds, remove timezone, convert to string
-    return TZ.localize(dt.replace(microsecond=0)).astimezone(utc).replace(tzinfo=None).isoformat() + 'Z'
+    return dt.replace(microsecond=0).replace(tzinfo=None).isoformat() + 'Z'

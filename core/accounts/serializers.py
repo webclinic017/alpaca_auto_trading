@@ -1,5 +1,4 @@
 from rest_framework import serializers, exceptions
-from core.accounts.broker_accounts import AccountBrokerServices
 
 from core.utils.modelhelper import updatesetter
 from . import models
@@ -149,13 +148,9 @@ class AccountCredentialsWrapperSerializerv1(serializers.Serializer):
             except Exception as e:
                 raise exceptions.APIException(detail=str(e))
         
-        try:
-            brokerage = AccountBrokerServices(contact_data['user'])
-            brokerage.activate_account()
-        except Exception as e:
-            raise exceptions.ParseError(detail=e)
 
         transaction.commit()
+    
 
         return {
             "contact": AccountContactSerializersv1(contact).data,

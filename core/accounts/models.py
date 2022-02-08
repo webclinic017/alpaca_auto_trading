@@ -48,6 +48,7 @@ class ContactInfo(BaseTimeStampModel):
     user = models.OneToOneField(
         User, on_delete=models.DO_NOTHING, related_name="user_contact_info"
     )
+    email_address = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=255)
     street_address = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
@@ -61,6 +62,7 @@ class ContactInfo(BaseTimeStampModel):
     
     def dict_fields(self):
         dic_data = dict(
+            email_address=self.email_address,
             phone_number=self.phone_number,
             street_address=[self.street_address],
             city=self.city,

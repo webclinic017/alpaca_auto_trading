@@ -81,9 +81,10 @@ class Command(BaseCommand):
         # resp =  broker.buy_order_direct(main_id,'AAL',"250")
         # resp =  broker.sell_order_direct(main_id,'AAL',300)
         # resp =  broker.retrive_transfer_data('51fcf60f-fc3f-4b10-8e25-08104d118be1')
+        resp =  broker.delete_account('9632a337-c051-480e-ad5d-7f2b6a1afe84')
         
         # resp =  broker.create_order_with_setup('5e20df35-bbd0-41ee-be48-d809673bf0a0',"AAPL",5,172.2,175.75,159)
-        print(create_data)
+        print(resp)
 
         
         # 2020-09-11T18:09:33Z
